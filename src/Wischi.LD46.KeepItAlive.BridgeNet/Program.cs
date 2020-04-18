@@ -15,21 +15,35 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             var input = new HTMLInputElement
             {
                 Type = InputType.Range,
-                Min = "1",
+                Min = "0",
+                Max = "1000",
+                Value = "1000"
+            };
+
+            var inputTickness = new HTMLInputElement
+            {
+                Type = InputType.Range,
+                Min = "0",
                 Max = "1000",
                 Value = "1000"
             };
 
             Document.Body.AppendChild(canvas);
             Document.Body.AppendChild(input);
+            Document.Body.AppendChild(inputTickness);
 
             var app = new App(canvas);
 
-            input.AddEventListener(EventType.Input, () =>
+            void Update()
             {
                 var growth = int.Parse(input.Value) / 1000.0;
-                app.SetGrowState(growth);
-            });
+                var thick = int.Parse(inputTickness.Value) / 1000.0;
+
+                app.SetGrowState(growth, thick);
+            }
+
+            input.AddEventListener(EventType.Input, Update);
+            inputTickness.AddEventListener(EventType.Input, Update);
         }
     }
 }

@@ -11,12 +11,13 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         private readonly Random rnd = new Random();
         private readonly PixelScreen pixelScreen;
         private readonly TreeSegment trunk;
+        private readonly TreeDrawingContext treeDrawingContext;
 
         public App(HTMLCanvasElement canvas)
         {
             this.canvas = canvas;
-            canvas.Width = 256;
-            canvas.Height = 256;
+            canvas.Width = 512;
+            canvas.Height = 512;
 
             pixelScreen = new PixelScreen();
 
@@ -40,44 +41,139 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             var treeBuilder = new TreeBuilder(rndSource);
             trunk = treeBuilder.BuildTree();
 
-            SetGrowState(1);
+            treeDrawingContext = new TreeDrawingContext(ctx)
+            {
+                ScaleFactor = 80,
+                StartX = 256,
+                StartY = 512,
+            };
+
+            SetGrowState(1, 1);
 
             Console.WriteLine("Welcome to Bridge.NET");
         }
 
-        public void SetGrowState(double value)
+        public void SetGrowState(double growth, double thicknessLimit)
         {
-            var depthLimit = (int)(12 * value);
-            DrawTree(trunk, 40, value, 0.1, depthLimit);
+            ctx.ClearRect(0, 0, 512, 512);
+
+            treeDrawingContext.GrowthFactor = growth;
+            treeDrawingContext.ThicknessLimit = 0.02 * (1 - thicknessLimit);
+
+            treeDrawingContext.DrawTree(trunk);
+        }
+    }
+
+    public class TreeDrawingContext
+    {
+        private const double TAU = Math.PI * 2;
+
+        private readonly CanvasRenderingContext2D ctx;
+
+        public TreeDrawingContext(CanvasRenderingContext2D ctx)
+        {
+            this.ctx = ctx ?? throw new ArgumentNullException(nameof(ctx));
         }
 
-        public void DrawTree(TreeSegment trunkSegment, double factor, double growFactor, double thicknessLevel, int depthLimit)
+        private int DepthLimit => 14;
+
+        public double GrowthFactor { get; set; }
+        public double ScaleFactor { get; set; }
+        public double StartX { get; set; }
+        public double StartY { get; set; }
+        public double ThicknessLimit { get; set; }
+
+        public void DrawTree(TreeSegment treeTrunk)
         {
-            ctx.FillStyle = "#000";
-            ctx.ClearRect(0, 0, 256, 256);
-            DrawTreeSegment(trunkSegment, factor, 128, 256, growFactor, thicknessLevel, depthLimit);
+            if (treeTrunk is null)
+            {
+                throw new ArgumentNullException(nameof(treeTrunk));
+            }
+
+            DrawSegmentInternal(treeTrunk, StartX, StartY, 0.25 * TAU);
         }
 
-        private void DrawTreeSegment(TreeSegment currentSegment, double factor, double x, double y, double growFactor, double thicknessLimit, int depthLimit)
+        private double EaseInQuad(double x)
         {
-            if (currentSegment.Depth >= depthLimit)
+            return x * x * x * x;
+        }
+
+        private double EaseInQuadOffset(double x)
+        {
+            x = x * 0.5 + 0.5;
+            return x * x * x * x;
+        }
+
+        private double EaseLinear(double x)
+        {
+            return x;
+        }
+
+        private double EaseInExp(double factor)
+        {
+            if (factor <= 0)
+            {
+                return 0;
+            }
+
+            return Math.Pow(2, 10 * factor - 10);
+        }
+
+        private Func<double, double> EaseDepth => EaseInQuadOffset;
+        private Func<double, double> EaseThickness => EaseInQuadOffset;
+        private Func<double, double> EaseDeviation => EaseLinear;
+
+        private void DrawSegmentInternal(TreeSegment currentSegment, double x, double y, double lastBranchAbsoluteAngle)
+        {
+            var floatingDepth = DepthLimit * EaseDepth(GrowthFactor);
+
+            var lowerDepth = (int)floatingDepth;
+            var upperDepth = lowerDepth + 1;
+
+            if (currentSegment.Depth > upperDepth)
             {
                 return;
+            }
+
+            var depthLengthScale = Math.Max(Math.Min(1.0, floatingDepth - currentSegment.Depth), 0);
+
+            var effectiveDeviationAngle = currentSegment.DeviationAngle * (EaseDeviation(GrowthFactor) * 0.3 + 0.7);
+
+            var currentBranchAbsoluteAngle = lastBranchAbsoluteAngle + effectiveDeviationAngle;
+            var length = currentSegment.Length * ScaleFactor * GrowthFactor * depthLengthScale;
+
+            var dx = Math.Cos(currentBranchAbsoluteAngle) * length;
+            var dy = Math.Sin(currentBranchAbsoluteAngle) * length;
+
+            var internalThickness = currentSegment.Thickness * GrowthFactor * EaseThickness(GrowthFactor) * depthLengthScale;
+
+            if (internalThickness < ThicknessLimit)
+            {
+                return;
+            }
+
+            if (internalThickness > 0.02)
+            {
+                ctx.StrokeStyle = "#421208";
+            }
+            else
+            {
+                ctx.StrokeStyle = "#206411";
             }
 
             ctx.BeginPath();
             ctx.MoveTo(x, y);
 
-            x += currentSegment.Vector.X * factor * growFactor;
-            y += -currentSegment.Vector.Y * factor * growFactor;
+            x += dx;
+            y += -dy;
 
             ctx.LineTo(x, y);
-            ctx.LineWidth = currentSegment.Thickness * factor * growFactor;
+            ctx.LineWidth = internalThickness * ScaleFactor;
             ctx.Stroke();
 
             foreach (var branch in currentSegment.Branches)
             {
-                DrawTreeSegment(branch, factor, x, y, growFactor, thicknessLimit, depthLimit);
+                DrawSegmentInternal(branch, x, y, currentBranchAbsoluteAngle);
             }
         }
     }
