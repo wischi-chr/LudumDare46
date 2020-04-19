@@ -71,6 +71,7 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>copy "$(ProjectDir)Bridge\index.html" "$(TargetDir)\bridge\index.html
+
 copy "$(ProjectDir)img\reset.png" "$(TargetDir)\bridge\img\reset.png"
 copy "$(ProjectDir)img\water.png" "$(TargetDir)\bridge\img\water.png"</PostBuildEvent>
   </PropertyGroup>
