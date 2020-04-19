@@ -1,2 +1,4 @@
-# GameJam - Ludum Dare 46
-Motto: Keep it alive
+# ZenTuree
+## GameJam - Ludum Dare 46
+
+_Motto:_ Keep it alive
