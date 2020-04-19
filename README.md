@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://raw.githubusercontent.com/wischi-chr/ZenTuree/master/doc/sample-tree.png">
+</div>
+
 # ZenTuree
 ## GameJam - Ludum Dare 46
 
