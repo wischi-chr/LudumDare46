@@ -10,7 +10,8 @@ namespace Wischi.LD46.KeepItAlive.TestRunner
     {
         private static void Main(string[] args)
         {
-            var rndSource = new RandomWrapper();
+            var seed = new Random().Next();
+            var rndSource = new RandomWrapper(seed);
             var treeBuilder = new TreeBuilder(rndSource);
             var tree = treeBuilder.BuildTree();
         }

@@ -10,11 +10,13 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         private readonly CanvasRenderingContext2D ctx;
         private readonly Random rnd = new Random();
         private readonly PixelScreen pixelScreen;
-        private readonly TreeSegment trunk;
+        private TreeSegment trunk;
         private readonly TreeDrawingContext treeDrawingContext;
         private readonly HTMLImageElement water;
-        private readonly RandomWrapper rndSource;
-        private readonly StableRandom stableRandom;
+        private readonly HTMLImageElement reset;
+
+        private readonly RandomWrapper treeRndSource;
+        private RandomWrapper grassRandom;
 
         private const int CanvasWidth = 512;
         private const int CanvasHeight = 512;
@@ -22,13 +24,20 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         private const int TreeYOffset = 420;
 
         public double GrowthControl { get; set; }
+        public double WaterAmount { get; set; }
         public double ThicknessControl { get; set; }
         public double WaterDelta { get; set; }
+        public bool IsDead { get; set; }
 
-        public App(HTMLCanvasElement canvas, HTMLImageElement water)
+        private string SkyColor => IsDead ? "#444" : "#B2FFFF";
+        private string GrassBackgroundColor => IsDead ? "#333" : "#7EC850";
+        private string GrassColor => IsDead ? "#111" : "#206411";
+
+        public App(HTMLCanvasElement canvas, HTMLImageElement water, HTMLImageElement reset, int seed)
         {
             this.canvas = canvas;
             this.water = water;
+            this.reset = reset;
             canvas.Width = CanvasWidth;
             canvas.Height = CanvasHeight;
 
@@ -50,11 +59,7 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
 
 
 
-            rndSource = new RandomWrapper();
-            stableRandom = new StableRandom(123);
-
-            var treeBuilder = new TreeBuilder(rndSource);
-            trunk = treeBuilder.BuildTree();
+            UpdateSeed(seed);
 
             treeDrawingContext = new TreeDrawingContext(ctx)
             {
@@ -65,24 +70,32 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             };
         }
 
-        public void Tick()
+        public void UpdateSeed(int newSeed)
         {
+            var treeRndSource = new RandomWrapper(newSeed);
+            var treeBuilder = new TreeBuilder(treeRndSource);
+            trunk = treeBuilder.BuildTree();
 
+            grassRandom = new RandomWrapper(newSeed);
         }
+
+        private bool waterInfoWasShown = false;
+        private bool waterInfoDeactivated = false;
 
         public void Redraw()
         {
-            stableRandom.Reset();
+            grassRandom.Reset();
 
-            ctx.FillStyle = "#B2FFFF";
+            ctx.FillStyle = SkyColor;
             ctx.ClearRect(0, 0, 512, 512);
             ctx.FillRect(0, 0, 512, 512);
 
             treeDrawingContext.GrowthFactor = EasingHelper.EaseOutQuad(GrowthControl * 0.75 + 0.25);
             treeDrawingContext.LeafFactor = ThicknessControl * 0.9;
+            treeDrawingContext.IsDead = IsDead;
 
             var grassHeight = TreeYOffset - 50;
-            ctx.FillStyle = "#7EC850";
+            ctx.FillStyle = GrassBackgroundColor;
             ctx.FillRect(0, grassHeight, CanvasWidth, CanvasHeight - grassHeight);
 
             var grassForegroundLimit = TreeYOffset - 20;
@@ -99,6 +112,11 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 DrawGrass(y, 512);
             }
 
+            DrawWaterHUD();
+        }
+
+        private void DrawWaterHUD()
+        {
             // draw hud
             var height = 30;
             var margin = 10;
@@ -106,28 +124,78 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             var marginBottom = 20;
             var padding = 5;
 
-            var valuePercent = 0.5;
+            var waterPredition = 0;
 
-            // white hud bg
-            ctx.FillStyle = "#B2FFFF60";
-            ctx.FillRect(0 + marginLeft, CanvasHeight - marginBottom - 2 * padding - height, CanvasWidth - margin - marginLeft, height + 2 * padding);
+            if (WaterAmount + WaterDelta > 1)
+            {
+                waterPredition = 1;
+            }
 
-            ctx.FillStyle = "#0077BE";
-            ctx.FillRect(0 + marginLeft + padding, CanvasHeight - marginBottom - padding - height, (int)((CanvasWidth - 2 * padding - margin - marginLeft) * valuePercent), height);
+            if (!IsDead)
+            {
+                // white hud bg
+                ctx.FillStyle = "#B2FFFF60";
+                ctx.FillRect(0 + marginLeft, CanvasHeight - marginBottom - 2 * padding - height, CanvasWidth - margin - marginLeft, height + 2 * padding);
+
+                ctx.FillStyle = "#0077BE80";
+                ctx.FillRect(0 + marginLeft + padding, CanvasHeight - marginBottom - padding - height, (CanvasWidth - 2 * padding - margin - marginLeft) * waterPredition, height);
+
+                ctx.FillStyle = "#0077BE";
+                ctx.FillRect(0 + marginLeft + padding, CanvasHeight - marginBottom - padding - height, (int)((CanvasWidth - 2 * padding - margin - marginLeft) * WaterAmount), height);
+            }
+
+            var icon = water;
+            var iconLeft = 5;
+
+            if (IsDead)
+            {
+                iconLeft = 20;
+                icon = reset;
+            }
 
             ctx.ImageSmoothingEnabled = true;
-            ctx.DrawImage(water, 5, CanvasHeight - 64 - 15, 64d, 64d);
+            ctx.DrawImage(icon, iconLeft, CanvasHeight - 64 - 15, 64d, 64d);
 
             ctx.FillStyle = "#000";
             ctx.Font = "bold 16px Arial, sans-serif";
-            ctx.FillText("⯇ click to water your tree", marginLeft + padding + 15, CanvasHeight - marginBottom - padding - 10);
+
+            var text = "";
+
+            if (!IsDead)
+            {
+                var lastWaterinfo = waterInfoWasShown;
+                waterInfoWasShown = false;
+
+                if ((WaterAmount < 0.5 && !waterInfoDeactivated) || WaterAmount < 0.001)
+                {
+                    text = "⯇ click to water your tree";
+                    waterInfoWasShown = true;
+                }
+                else if (WaterAmount > 0.999)
+                {
+                    text = "swamped";
+                }
+
+                if (lastWaterinfo && !waterInfoWasShown)
+                {
+                    waterInfoDeactivated = true;
+                }
+            }
+            else
+            {
+                ctx.Font = "bold 24px Arial, sans-serif";
+                marginLeft += 30;
+                //text = "⯇ click to restart";
+            }
+
+            ctx.FillText(text, marginLeft + padding + 15, CanvasHeight - marginBottom - padding - 10);
         }
 
         private void DrawGrass(int y, int amount)
         {
             var grassScale = 0.2 * ScaleFactor;
 
-            ctx.StrokeStyle = "#206411";
+            ctx.StrokeStyle = GrassColor;
             ctx.LineWidth = grassScale * 0.025;
 
             ctx.BeginPath();
@@ -135,11 +203,11 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             for (var i = 0; i < amount; i++)
             {
 
-                var x = stableRandom.NextDouble() * CanvasWidth;
+                var x = grassRandom.NextDouble() * CanvasWidth;
 
-                var offsetx = stableRandom.NextDouble() - 0.5;
-                var offsetY = stableRandom.NextDouble() - 0.5;
-                var height = stableRandom.NextDouble() * 0.7 + 0.3;
+                var offsetx = grassRandom.NextDouble() - 0.5;
+                var offsetY = grassRandom.NextDouble() - 0.5;
+                var height = grassRandom.NextDouble() * 0.7 + 0.3;
 
                 ctx.MoveTo(x, y + offsetY * grassScale);
                 ctx.LineTo(x + offsetx * grassScale, y + offsetY * grassScale + height * grassScale);
@@ -214,6 +282,9 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         public double StartY { get; set; }
         private double ThicknessLimit => LeafLimit * (1 - LeafFactor);
         public double LeafFactor { get; set; }
+        public bool IsDead { get; set; }
+
+        private string BranchColor => IsDead ? "#000" : "#421208";
 
         public void DrawTree(TreeSegment treeTrunk)
         {
@@ -258,8 +329,8 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             if (internalThickness > LeafLimit)
             {
                 // branch
-                ctx.StrokeStyle = "#421208";
-                ctx.FillStyle = "#421208";
+                ctx.StrokeStyle = BranchColor;
+                ctx.FillStyle = BranchColor;
             }
             else
             {

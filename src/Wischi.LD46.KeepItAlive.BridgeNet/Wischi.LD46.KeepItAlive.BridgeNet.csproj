@@ -56,9 +56,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="img\water.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Bridge\index.html" />
+    <Content Include="img\reset.png" />
+    <Content Include="img\water.png" />
   </ItemGroup>
   <Import Project="..\Wischi.LD46.KeepItAlive.Shared\Wischi.LD46.KeepItAlive.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -69,4 +69,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Bridge.Min.17.10.1\build\Bridge.Min.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Bridge.Min.17.10.1\build\Bridge.Min.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(ProjectDir)Bridge\index.html" "$(TargetDir)\bridge\index.html
+copy "$(ProjectDir)img\reset.png" "$(TargetDir)\bridge\img\reset.png"
+copy "$(ProjectDir)img\water.png" "$(TargetDir)\bridge\img\water.png"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

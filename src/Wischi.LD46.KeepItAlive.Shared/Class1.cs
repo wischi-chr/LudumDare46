@@ -1,37 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Wischi.LD46.KeepItAlive
 {
-
     public class RandomWrapper : IRandomSource
     {
-        private readonly Random random;
+        private Random random;
+        private readonly int seed;
 
-        public RandomWrapper(Random random)
-        {
-            this.random = random ?? throw new ArgumentNullException(nameof(random));
-        }
-
-        public RandomWrapper()
-        {
-            random = new Random();
-        }
-
-        public double NextDouble()
-        {
-            return random.NextDouble();
-        }
-    }
-
-    public class StableRandom : IRandomSource
-    {
-        private readonly long seed;
-
-        private Random internalRnd;
-
-        public StableRandom(long seed)
+        public RandomWrapper(int seed)
         {
             this.seed = seed;
             Reset();
@@ -39,15 +16,12 @@ namespace Wischi.LD46.KeepItAlive
 
         public void Reset()
         {
-            unchecked
-            {
-                internalRnd = new Random((int)seed);
-            };
+            random = new Random(seed);
         }
 
         public double NextDouble()
         {
-            return internalRnd.NextDouble();
+            return random.NextDouble();
         }
     }
 
