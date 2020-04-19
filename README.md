@@ -1,7 +1,3 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/wischi-chr/ZenTuree/master/doc/sample-tree.png">
-</div>
-
 # ZenTuree
 ## GameJam - Ludum Dare 46
 
@@ -9,6 +5,10 @@ _Motto:_ Keep it alive
 
 ZenTuree (pronounced a bit like _century_) is a game that combines quite literally _"zen"_, _"tree"_ and _"century"_.
 Everything you need to play this game a lot of patience and a green thumb.
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/wischi-chr/ZenTuree/master/doc/sample-tree.png">
+</div>
 
 ### Gameplay
 The rules are pretty simple:
