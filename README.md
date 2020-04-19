@@ -7,7 +7,7 @@ ZenTuree (pronounced a bit like _century_) is a game that combines quite literal
 Everything you need to play this game a lot of patience and a green thumb.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/wischi-chr/ZenTuree/master/doc/sample-tree.png">
+  <img src="https://raw.githubusercontent.com/wischi-chr/ZenTuree/master/doc/ld46-banner.png" width="300">
 </div>
 
 ### Gameplay
