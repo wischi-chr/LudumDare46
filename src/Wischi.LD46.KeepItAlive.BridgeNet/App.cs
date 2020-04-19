@@ -1,4 +1,4 @@
-using Bridge.Html5;
+﻿using Bridge.Html5;
 using System;
 using System.Collections.Generic;
 
@@ -12,17 +12,29 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         private readonly PixelScreen pixelScreen;
         private readonly TreeSegment trunk;
         private readonly TreeDrawingContext treeDrawingContext;
+        private readonly HTMLImageElement water;
+        private readonly RandomWrapper rndSource;
+        private readonly StableRandom stableRandom;
 
-        public App(HTMLCanvasElement canvas)
+        private const int CanvasWidth = 512;
+        private const int CanvasHeight = 512;
+        private const double ScaleFactor = 80;
+        private const int TreeYOffset = 420;
+
+        public double GrowthControl { get; set; }
+        public double ThicknessControl { get; set; }
+        public double WaterDelta { get; set; }
+
+        public App(HTMLCanvasElement canvas, HTMLImageElement water)
         {
             this.canvas = canvas;
-            canvas.Width = 512;
-            canvas.Height = 512;
+            this.water = water;
+            canvas.Width = CanvasWidth;
+            canvas.Height = CanvasHeight;
 
             pixelScreen = new PixelScreen();
 
             ctx = canvas.GetContext(CanvasTypes.CanvasContext2DType.CanvasRenderingContext2D);
-
 
             pixelScreen.SetPixel(0, 0, true);
 
@@ -37,30 +49,148 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             //ctx.PutImageData(pixelScreen.ImageData, 0, 0);
 
 
-            var rndSource = new RandomWrapper();
+
+            rndSource = new RandomWrapper();
+            stableRandom = new StableRandom(123);
+
             var treeBuilder = new TreeBuilder(rndSource);
             trunk = treeBuilder.BuildTree();
 
             treeDrawingContext = new TreeDrawingContext(ctx)
             {
-                ScaleFactor = 80,
-                StartX = 256,
-                StartY = 512,
+                ScaleFactor = ScaleFactor,
+                StartX = CanvasWidth / 2,
+                StartY = TreeYOffset,
+                LeafLimit = 0.02
             };
-
-            SetGrowState(1, 1);
-
-            Console.WriteLine("Welcome to Bridge.NET");
         }
 
-        public void SetGrowState(double growth, double thicknessLimit)
+        public void Tick()
         {
-            ctx.ClearRect(0, 0, 512, 512);
 
-            treeDrawingContext.GrowthFactor = growth;
-            treeDrawingContext.ThicknessLimit = 0.02 * (1 - thicknessLimit);
+        }
+
+        public void Redraw()
+        {
+            stableRandom.Reset();
+
+            ctx.FillStyle = "#B2FFFF";
+            ctx.ClearRect(0, 0, 512, 512);
+            ctx.FillRect(0, 0, 512, 512);
+
+            treeDrawingContext.GrowthFactor = EasingHelper.EaseOutQuad(GrowthControl * 0.75 + 0.25);
+            treeDrawingContext.LeafFactor = ThicknessControl * 0.9;
+
+            var grassHeight = TreeYOffset - 50;
+            ctx.FillStyle = "#7EC850";
+            ctx.FillRect(0, grassHeight, CanvasWidth, CanvasHeight - grassHeight);
+
+            var grassForegroundLimit = TreeYOffset - 20;
+
+            for (var y = grassHeight - 10; y < grassForegroundLimit; y += 5)
+            {
+                DrawGrass(y, 512);
+            }
 
             treeDrawingContext.DrawTree(trunk);
+
+            for (var y = grassForegroundLimit; y < CanvasHeight; y += 5)
+            {
+                DrawGrass(y, 512);
+            }
+
+            // draw hud
+            var height = 30;
+            var margin = 10;
+            var marginLeft = 50;
+            var marginBottom = 20;
+            var padding = 5;
+
+            var valuePercent = 0.5;
+
+            // white hud bg
+            ctx.FillStyle = "#B2FFFF60";
+            ctx.FillRect(0 + marginLeft, CanvasHeight - marginBottom - 2 * padding - height, CanvasWidth - margin - marginLeft, height + 2 * padding);
+
+            ctx.FillStyle = "#0077BE";
+            ctx.FillRect(0 + marginLeft + padding, CanvasHeight - marginBottom - padding - height, (int)((CanvasWidth - 2 * padding - margin - marginLeft) * valuePercent), height);
+
+            ctx.ImageSmoothingEnabled = true;
+            ctx.DrawImage(water, 5, CanvasHeight - 64 - 15, 64d, 64d);
+
+            ctx.FillStyle = "#000";
+            ctx.Font = "bold 16px Arial, sans-serif";
+            ctx.FillText("⯇ click to water your tree", marginLeft + padding + 15, CanvasHeight - marginBottom - padding - 10);
+        }
+
+        private void DrawGrass(int y, int amount)
+        {
+            var grassScale = 0.2 * ScaleFactor;
+
+            ctx.StrokeStyle = "#206411";
+            ctx.LineWidth = grassScale * 0.025;
+
+            ctx.BeginPath();
+
+            for (var i = 0; i < amount; i++)
+            {
+
+                var x = stableRandom.NextDouble() * CanvasWidth;
+
+                var offsetx = stableRandom.NextDouble() - 0.5;
+                var offsetY = stableRandom.NextDouble() - 0.5;
+                var height = stableRandom.NextDouble() * 0.7 + 0.3;
+
+                ctx.MoveTo(x, y + offsetY * grassScale);
+                ctx.LineTo(x + offsetx * grassScale, y + offsetY * grassScale + height * grassScale);
+            }
+
+            ctx.ClosePath();
+            ctx.Stroke();
+        }
+    }
+
+    public static class EasingHelper
+    {
+        public static double EaseOutSine(double x)
+        {
+            return Math.Sin(x * Math.PI / 2);
+        }
+
+        public static double EaseOutQuad(double x)
+        {
+            return 1 - (1 - x) * (1 - x);
+        }
+
+        public static double EaseOutQuint(double x)
+        {
+            return 1 - Math.Pow(1 - x, 5);
+        }
+
+        public static double EaseInQuad(double x)
+        {
+            return x * x * x * x;
+        }
+
+        public static double EaseInQuadOffset(double x)
+        {
+            x = x * 0.5 + 0.5;
+            return x * x * x * x;
+        }
+
+        public static double EaseLinear(double x)
+        {
+            return x;
+        }
+
+        public static double EaseInExp(double factor)
+        {
+            if (factor <= 0)
+            {
+                return 0;
+            }
+
+            return Math.Pow(2, 10 * factor - 10);
         }
     }
 
@@ -75,13 +205,15 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             this.ctx = ctx ?? throw new ArgumentNullException(nameof(ctx));
         }
 
-        private int DepthLimit => 14;
+        private int DepthLimit => 12;
 
         public double GrowthFactor { get; set; }
         public double ScaleFactor { get; set; }
+        public double LeafLimit { get; set; }
         public double StartX { get; set; }
         public double StartY { get; set; }
-        public double ThicknessLimit { get; set; }
+        private double ThicknessLimit => LeafLimit * (1 - LeafFactor);
+        public double LeafFactor { get; set; }
 
         public void DrawTree(TreeSegment treeTrunk)
         {
@@ -90,40 +222,14 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 throw new ArgumentNullException(nameof(treeTrunk));
             }
 
-            DrawSegmentInternal(treeTrunk, StartX, StartY, 0.25 * TAU);
+            DrawSegmentInternal(treeTrunk, StartX, StartY, 0.25 * TAU, double.NaN);
         }
 
-        private double EaseInQuad(double x)
-        {
-            return x * x * x * x;
-        }
+        private Func<double, double> EaseDepth => EasingHelper.EaseInQuadOffset;
+        private Func<double, double> EaseThickness => EasingHelper.EaseInQuadOffset;
+        private Func<double, double> EaseDeviation => EasingHelper.EaseLinear;
 
-        private double EaseInQuadOffset(double x)
-        {
-            x = x * 0.5 + 0.5;
-            return x * x * x * x;
-        }
-
-        private double EaseLinear(double x)
-        {
-            return x;
-        }
-
-        private double EaseInExp(double factor)
-        {
-            if (factor <= 0)
-            {
-                return 0;
-            }
-
-            return Math.Pow(2, 10 * factor - 10);
-        }
-
-        private Func<double, double> EaseDepth => EaseInQuadOffset;
-        private Func<double, double> EaseThickness => EaseInQuadOffset;
-        private Func<double, double> EaseDeviation => EaseLinear;
-
-        private void DrawSegmentInternal(TreeSegment currentSegment, double x, double y, double lastBranchAbsoluteAngle)
+        private void DrawSegmentInternal(TreeSegment currentSegment, double x, double y, double lastBranchAbsoluteAngle, double lastThickness)
         {
             var floatingDepth = DepthLimit * EaseDepth(GrowthFactor);
 
@@ -140,10 +246,7 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             var effectiveDeviationAngle = currentSegment.DeviationAngle * (EaseDeviation(GrowthFactor) * 0.3 + 0.7);
 
             var currentBranchAbsoluteAngle = lastBranchAbsoluteAngle + effectiveDeviationAngle;
-            var length = currentSegment.Length * ScaleFactor * GrowthFactor * depthLengthScale;
-
-            var dx = Math.Cos(currentBranchAbsoluteAngle) * length;
-            var dy = Math.Sin(currentBranchAbsoluteAngle) * length;
+            var length = currentSegment.Length * GrowthFactor * depthLengthScale;
 
             var internalThickness = currentSegment.Thickness * GrowthFactor * EaseThickness(GrowthFactor) * depthLengthScale;
 
@@ -152,29 +255,126 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 return;
             }
 
-            if (internalThickness > 0.02)
+            if (internalThickness > LeafLimit)
             {
+                // branch
                 ctx.StrokeStyle = "#421208";
+                ctx.FillStyle = "#421208";
             }
             else
             {
+                // leaf
                 ctx.StrokeStyle = "#206411";
+                ctx.FillStyle = "#206411";
             }
 
+            if (double.IsNaN(lastThickness))
+            {
+                lastThickness = internalThickness;
+            }
+
+            (x, y) = DrawSegmentToCanvas2(
+                x,
+                y,
+                internalThickness,
+                currentBranchAbsoluteAngle,
+                lastThickness,
+                lastBranchAbsoluteAngle,
+                length
+            );
+
+            foreach (var branch in currentSegment.Branches)
+            {
+                DrawSegmentInternal(branch, x, y, currentBranchAbsoluteAngle, internalThickness);
+            }
+        }
+
+        private (double nextX, double nextY) DrawSegmentToCanvas(
+            double x,
+            double y,
+            double thickness,
+            double absoluteAngle,
+            double previousThickness,
+            double previousAngle,
+            double length
+        )
+        {
             ctx.BeginPath();
             ctx.MoveTo(x, y);
+
+            var dx = Math.Cos(absoluteAngle) * length * ScaleFactor;
+            var dy = Math.Sin(absoluteAngle) * length * ScaleFactor;
 
             x += dx;
             y += -dy;
 
             ctx.LineTo(x, y);
-            ctx.LineWidth = internalThickness * ScaleFactor;
+            ctx.LineWidth = thickness * ScaleFactor;
+            ctx.ClosePath();
+
             ctx.Stroke();
 
-            foreach (var branch in currentSegment.Branches)
+            return (x, y);
+        }
+
+        private (double nextX, double nextY) DrawSegmentToCanvas2(
+            double x,
+            double y,
+            double thickness,
+            double absoluteAngle,
+            double previousThickness,
+            double previousAngle,
+            double length
+        )
+        {
+            var dx = Math.Cos(absoluteAngle) * length * ScaleFactor;
+            var dy = Math.Sin(absoluteAngle) * length * ScaleFactor;
+
+            var newX = x + dx;
+            var newY = y - dy;
+
+            if (thickness > LeafLimit)
             {
-                DrawSegmentInternal(branch, x, y, currentBranchAbsoluteAngle);
+                // calc old attachpoints
+                var oldNormal = previousAngle - TAU * 0.25;
+                var oldNormalX = Math.Cos(oldNormal) * previousThickness / 2;
+                var oldNormalY = -Math.Sin(oldNormal) * previousThickness / 2;
+
+                // calc new attachpoints
+                var newNormal = absoluteAngle + TAU * 0.25;
+                var newNormalX = Math.Cos(newNormal) * thickness / 2;
+                var newNormalY = -Math.Sin(newNormal) * thickness / 2;
+
+                ctx.BeginPath();
+                ctx.MoveTo(x + oldNormalX * ScaleFactor, y + oldNormalY * ScaleFactor);
+                ctx.LineTo(newX - newNormalX * ScaleFactor, newY - newNormalY * ScaleFactor);
+                ctx.LineTo(newX + newNormalX * ScaleFactor, newY + newNormalY * ScaleFactor);
+                ctx.LineTo(x - oldNormalX * ScaleFactor, y - oldNormalY * ScaleFactor);
+
+                ctx.ClosePath();
+
+                //ctx.Stroke();
+                ctx.Fill();
+
+                ctx.BeginPath();
+                ctx.Arc(newX, newY, thickness / 2 * ScaleFactor, 0, TAU);
+                ctx.ClosePath();
+                ctx.Fill();
+
             }
+            else
+            {
+                ctx.BeginPath();
+
+                ctx.MoveTo(x, y);
+                ctx.LineTo(newX, newY);
+                ctx.LineWidth = thickness * ScaleFactor;
+
+                ctx.ClosePath();
+                ctx.Stroke();
+            }
+
+            return (newX, newY);
         }
     }
 

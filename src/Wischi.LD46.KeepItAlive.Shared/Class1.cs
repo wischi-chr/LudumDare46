@@ -25,6 +25,32 @@ namespace Wischi.LD46.KeepItAlive
         }
     }
 
+    public class StableRandom : IRandomSource
+    {
+        private readonly long seed;
+
+        private Random internalRnd;
+
+        public StableRandom(long seed)
+        {
+            this.seed = seed;
+            Reset();
+        }
+
+        public void Reset()
+        {
+            unchecked
+            {
+                internalRnd = new Random((int)seed);
+            };
+        }
+
+        public double NextDouble()
+        {
+            return internalRnd.NextDouble();
+        }
+    }
+
     public interface IRandomSource
     {
         double NextDouble();
