@@ -21,7 +21,7 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             var water = new HTMLImageElement() { Src = "img/water.png" };
             var reset = new HTMLImageElement() { Src = "img/reset.png" };
 
-            var config = TreeConfigurations.DebugConfig;
+            var config = TreeConfigurations.ReleaseConfig;
             var startMs = Date.Now();
 
             var treeBehaviour = LoadFromLocalStorage(config);
