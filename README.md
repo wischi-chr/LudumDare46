@@ -33,6 +33,6 @@ The normal game mode takes about two years for a full grown tree. To make things
 This is the recommended game mode for LD46 testers. A full grown tree takes about 2h and should be watered about every 15 to 30 minutes. Of course you don’t have to stare at the tree for two hours. Make sure it has enough water, close the tab and try other games. Make sure to check in later to water the tree.  
    https://wischi-chr.github.io/ZenTuree/LD46/
 
-- **No-Zen Mode**  
+- **Non-Zen-s Mode**  
 For very unpatient players there is an even faster mode. A tree takes about a minute to fully grow.  
 https://wischi-chr.github.io/ZenTuree/FAST/
