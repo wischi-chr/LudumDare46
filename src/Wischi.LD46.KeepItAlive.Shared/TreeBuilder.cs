@@ -1,35 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Wischi.LD46.KeepItAlive
 {
-    public class RandomWrapper : IRandomSource
-    {
-        private Random random;
-        private readonly int seed;
-
-        public RandomWrapper(int seed)
-        {
-            this.seed = seed;
-            Reset();
-        }
-
-        public void Reset()
-        {
-            random = new Random(seed);
-        }
-
-        public double NextDouble()
-        {
-            return random.NextDouble();
-        }
-    }
-
-    public interface IRandomSource
-    {
-        double NextDouble();
-    }
-
     public class TreeBuilder
     {
         private const double TAU = Math.PI * 2;
@@ -138,90 +112,6 @@ namespace Wischi.LD46.KeepItAlive
 
             var branch = parent.AddBranch(deviation, parent.Length * lengthFactor, nextThinckness);
             AddBranchesToSegment(branch, oldAbsoluteAngle + deviation);
-        }
-    }
-
-    public static class RandomExtensions
-    {
-        public static double UniformRandom(this IRandomSource randomSource, double lowerLimit, double upperLimit)
-        {
-            var delta = (upperLimit - lowerLimit);
-            var randAmount = randomSource.NextDouble() * delta;
-            return lowerLimit + randAmount;
-        }
-    }
-
-    public interface IPixelScreenWriter
-    {
-        void SetPixel(int x, int y, bool set);
-    }
-
-    public struct Vector2d
-    {
-        public Vector2d(double x, double y)
-        {
-            X = x;
-            Y = y;
-        }
-
-        public double X { get; }
-        public double Y { get; }
-        public double Length => Math.Sqrt(X * X + Y * Y);
-
-        public Vector2d Rotate(double radianAngle)
-        {
-            var cosAngle = Math.Cos(radianAngle);
-            var sinAngle = Math.Sin(radianAngle);
-
-            var x = cosAngle * X - sinAngle * Y;
-            var y = sinAngle * X + cosAngle * Y;
-
-            return new Vector2d(x, y);
-        }
-
-        public Vector2d ChangeLength(double newLength)
-        {
-            var len = Length;
-
-            var normalizedX = X / len;
-            var normalizedY = Y / len;
-
-            return new Vector2d(normalizedX * newLength, normalizedY * newLength);
-        }
-    }
-
-    public class TreeSegment
-    {
-        public TreeSegment(double thickness)
-        {
-            Depth = 0;
-            DeviationAngle = 0;
-            Length = 1;
-
-            Branches = new List<TreeSegment>();
-            Thickness = thickness;
-        }
-
-        private TreeSegment(int depth, double deviationAngle, double length, double thickness)
-        {
-            Depth = depth;
-            DeviationAngle = deviationAngle;
-            Length = length;
-            Thickness = thickness;
-            Branches = new List<TreeSegment>();
-        }
-
-        public int Depth { get; }
-        public double Thickness { get; }
-        public double DeviationAngle { get; }
-        public double Length { get; }
-        public IList<TreeSegment> Branches { get; }
-
-        public TreeSegment AddBranch(double deviationAngle, double length, double thickness)
-        {
-            var branch = new TreeSegment(Depth + 1, deviationAngle, length, thickness);
-            Branches.Add(branch);
-            return branch;
         }
     }
 }

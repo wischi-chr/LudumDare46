@@ -4,25 +4,30 @@ using System;
 
 namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
-    public class Program
+    public static class Program
     {
-        private static HTMLCanvasElement canvas;
-
         [Ready]
         public static void Main()
         {
-            canvas = Document.GetElementById("canvas") as HTMLCanvasElement;
-
-            if (canvas is null)
+            if (!(Document.GetElementById("canvas") is HTMLCanvasElement canvas))
             {
+                // if canvas is missing, do nothing.
                 return;
             }
+
+            var xhr = new XMLHttpRequest();
+            xhr.Open("POST", "https://api.keyvalue.xyz/new/hugo");
+            xhr.OnLoad = a =>
+            {
+                Console.WriteLine("Hugo Hugo");
+            };
+
+            xhr.Send();
 
             var water = new HTMLImageElement() { Src = "img/water.png" };
             var reset = new HTMLImageElement() { Src = "img/reset.png" };
 
             var config = TreeConfigurations.ReleaseConfig;
-            var startMs = Date.Now();
 
             var treeBehaviour = LoadFromLocalStorage(config);
             var app = new App(canvas, water, reset, treeBehaviour.Seed);
@@ -77,12 +82,15 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 }
             });
 
-            var redrawTimer = Window.SetInterval(() =>
-            {
-                app.Redraw();
-            }, config.MsRefreshRate);
+            Window.SetInterval(
+                () =>
+                {
+                    app.Redraw();
+                },
+                config.MsRefreshRate
+            );
 
-            var tickTimer = Window.SetInterval(Update, config.MsTickRate);
+            Window.SetInterval(Update, config.MsTickRate);
 
             Update();
         }
@@ -169,231 +177,6 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             var behaviour = new TreeBehaviourEngine(config, start, lastUpdate, health, waterLevel, growth, tick, seed);
             SaveToLocalStorage(behaviour, config, true);
             return behaviour;
-        }
-    }
-
-    public static class TreeConfigurations
-    {
-        public static TreeConfiguration ReleaseConfig { get; }
-            = new TreeConfigurationBuilder()
-            {
-                FullGrownTree = TimeSpan.FromDays(365 * 2), // two years
-                TickRate = TimeSpan.FromMinutes(15),
-                WaterMax = TimeSpan.FromDays(16),
-                WaterMin = TimeSpan.FromDays(5),
-                ScreenRefreshRate = TimeSpan.FromMinutes(1),
-                DurationUntilDeadWhenUnhealthy = TimeSpan.FromDays(14),
-                DurationUntilFullHealthWhenHealthy = TimeSpan.FromDays(14),
-                InitialWaterLevel = 0.3,
-                SettingPrefix = "bonsai"
-            }.Build();
-
-        public static TreeConfiguration DebugConfig { get; }
-            = new TreeConfigurationBuilder()
-            {
-                FullGrownTree = TimeSpan.FromMinutes(1),
-                TickRate = TimeSpan.FromMilliseconds(10),
-                WaterMax = TimeSpan.FromSeconds(16),
-                WaterMin = TimeSpan.FromSeconds(5),
-                ScreenRefreshRate = TimeSpan.FromMilliseconds(100),
-                DurationUntilDeadWhenUnhealthy = TimeSpan.FromSeconds(10),
-                DurationUntilFullHealthWhenHealthy = TimeSpan.FromSeconds(10),
-                InitialWaterLevel = 1,
-                SettingPrefix = "debug"
-            }.Build();
-
-
-        public static TreeConfiguration LudumDare46Test { get; }
-            = new TreeConfigurationBuilder()
-            {
-                FullGrownTree = TimeSpan.FromHours(2),
-                TickRate = TimeSpan.FromMilliseconds(100),
-                ScreenRefreshRate = TimeSpan.FromMilliseconds(1000),
-                WaterMax = TimeSpan.FromMinutes(15),
-                WaterMin = TimeSpan.FromMinutes(30),
-                DurationUntilDeadWhenUnhealthy = TimeSpan.FromMinutes(15),
-                DurationUntilFullHealthWhenHealthy = TimeSpan.FromMinutes(15),
-                InitialWaterLevel = 0.3,
-                SettingPrefix = "LD46"
-            }.Build();
-    }
-
-    public class TreeConfigurationBuilder
-    {
-        public TimeSpan FullGrownTree { get; set; }
-        public TimeSpan TickRate { get; set; }
-        public TimeSpan WaterMin { get; set; }
-        public TimeSpan WaterMax { get; set; }
-        public TimeSpan DurationUntilDeadWhenUnhealthy { get; set; }
-        public TimeSpan DurationUntilFullHealthWhenHealthy { get; set; }
-        public TimeSpan ScreenRefreshRate { get; set; }
-        public double InitialWaterLevel { get; set; }
-        public string SettingPrefix { get; set; }
-
-        public TreeConfiguration Build()
-        {
-            return new TreeConfiguration(
-                GetPerTickValue(FullGrownTree),
-                GetPerTickValue(WaterMin),
-                GetPerTickValue(WaterMax),
-                GetPerTickValue(DurationUntilFullHealthWhenHealthy),
-                GetPerTickValue(DurationUntilDeadWhenUnhealthy),
-                InitialWaterLevel,
-                (int)Math.Round(ScreenRefreshRate.TotalMilliseconds),
-                (int)Math.Round(TickRate.TotalMilliseconds),
-                SettingPrefix
-            );
-        }
-
-        private double GetPerTickValue(TimeSpan value)
-        {
-            return 1.0 / (value.TotalMilliseconds / TickRate.TotalMilliseconds);
-        }
-    }
-
-    public class TreeConfiguration
-    {
-        public TreeConfiguration(
-            double maxGrowthRate,
-            double minWaterRate,
-            double maxWaterRate,
-            double healRate,
-            double harmRate,
-            double initialWaterLevel,
-            int msRefreshRate,
-            int msTickRate,
-            string settingPrefix
-        )
-        {
-            MaxGrowthRate = maxGrowthRate;
-            MinWaterRate = minWaterRate;
-            MaxWaterRate = maxWaterRate;
-            HealRate = healRate;
-            HarmRate = harmRate;
-            InitialWaterLevel = initialWaterLevel;
-            MsRefreshRate = msRefreshRate;
-            MsTickRate = msTickRate;
-            SettingPrefix = settingPrefix;
-        }
-
-        public double MaxGrowthRate { get; set; }
-        public double MinWaterRate { get; set; }
-        public double MaxWaterRate { get; set; }
-        public double HealRate { get; set; }
-        public double HarmRate { get; set; }
-        public double InitialWaterLevel { get; }
-        public int MsRefreshRate { get; }
-        public int MsTickRate { get; }
-        public string SettingPrefix { get; }
-    }
-
-    public class TreeBehaviourEngine
-    {
-        private readonly RandomWrapper rndSource;
-        private readonly TreeConfiguration config;
-
-        public TreeBehaviourEngine(TreeConfiguration config, double start, double lastUpdate, double health, double waterLevel, double growth, int ticks, int seed)
-        {
-            this.config = config;
-            Start = start;
-            LastUpdate = lastUpdate;
-            Health = health;
-            Growth = growth;
-            Ticks = ticks;
-            Seed = seed;
-            WaterLevel = waterLevel;
-            WaterDelta = 0.125;
-
-            rndSource = new RandomWrapper(seed);
-        }
-
-        public double WaterDelta { get; private set; }
-        public double WaterLevel { get; private set; }
-        public double Start { get; }
-        public double LastUpdate { get; private set; }
-        public double Health { get; private set; }
-        public double Growth { get; private set; }
-        public int Ticks { get; private set; }
-        public int Seed { get; }
-
-        private bool IsHealthy => WaterLevel > 0.001 && WaterLevel <= 1;
-
-        public void Water()
-        {
-            WaterLevel += WaterDelta;
-        }
-
-        public void Update(double now)
-        {
-            var targetTicks = (int)((now - Start) / config.MsTickRate);
-            var delta = targetTicks - Ticks;
-
-            for (var i = 0; i < delta; i++)
-            {
-                Tick();
-            }
-
-            LastUpdate = now;
-        }
-
-        private void Tick()
-        {
-            Ticks++;
-
-            GrowthTick();
-            WaterTick();
-            HealthTick();
-        }
-
-        private void GrowthTick()
-        {
-            if (Growth >= 1)
-            {
-                Growth = 1;
-            }
-            else
-            {
-                Growth += config.MaxGrowthRate * Health;
-            }
-        }
-
-        private void WaterTick()
-        {
-            var wDelta = config.MaxWaterRate - config.MinWaterRate;
-            var waterAmount = rndSource.NextDouble() * wDelta + config.MinWaterRate;
-            WaterLevel -= waterAmount;
-
-            if (WaterLevel < 0)
-            {
-                WaterLevel = 0;
-            }
-        }
-
-        private void HealthTick()
-        {
-            if (Health <= 0)
-            {
-                Health = 0;
-                return;
-            }
-
-            if (IsHealthy)
-            {
-                Health += config.HealRate;
-            }
-            else
-            {
-                Health -= config.HarmRate;
-            }
-
-            if (Health < 0)
-            {
-                Health = 0;
-            }
-            else if (Health > 1)
-            {
-                Health = 1;
-            }
         }
     }
 }

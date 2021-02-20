@@ -6,9 +6,10 @@
     <SharedGUID>5c0f4dd8-85f8-4346-954a-55f9e7643293</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Wischi.LD46.KeepItAlive.Shared</Import_RootNamespace>
+    <Import_RootNamespace>Wischi.LD46.KeepItAlive</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Class1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RandomWrapper.cs" />
   </ItemGroup>
 </Project>
