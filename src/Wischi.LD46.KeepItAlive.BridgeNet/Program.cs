@@ -9,12 +9,13 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         private static readonly TreeEnvironmentConfig config;
         private static readonly ITreeStateStore treeStateStore;
         private static readonly TreeStateFactory treeStateFactory;
+        private static readonly IClock clock;
 
         static Program()
         {
             var rng = new Random();
-            var clock = new BridgeClock();
 
+            clock = new BridgeClock();
             config = TreeEnvironmentConfigs.DebugConfig;
             treeStateStore = new LocalStorageTreeStateStore(config.SettingPrefix);
             treeStateFactory = new TreeStateFactory(rng, clock, config);
@@ -29,14 +30,16 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 return;
             }
 
-            var xhr = new XMLHttpRequest();
-            xhr.Open("POST", "https://api.keyvalue.xyz/new/hugo");
-            xhr.OnLoad = a =>
-            {
-                Console.Write(xhr.ResponseText);
-            };
+            Console.Write("Hello Tree!");
 
-            xhr.Send();
+            //var xhr = new XMLHttpRequest();
+            //xhr.Open("POST", "https://api.keyvalue.xyz/new/hugo");
+            //xhr.OnLoad = a =>
+            //{
+            //    Console.Write(xhr.ResponseText);
+            //};
+
+            //xhr.Send();
 
             var water = new HTMLImageElement() { Src = "img/water.png" };
             var reset = new HTMLImageElement() { Src = "img/reset.png" };
@@ -52,7 +55,7 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
 
             void Update()
             {
-                treeBehaviour.Update(Date.Now());
+                treeBehaviour.Update(clock.Now());
 
                 app.GrowthControl = treeBehaviour.TreeState.Growth;
                 app.WaterAmount = Math.Min(1, treeBehaviour.TreeState.WaterLevel);
@@ -121,14 +124,6 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             }
 
             return new TreeBehaviourEngine(config, state);
-        }
-    }
-
-    public class BridgeClock : IClock
-    {
-        public double Now()
-        {
-            return Date.Now();
         }
     }
 }
