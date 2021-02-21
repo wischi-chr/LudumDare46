@@ -4,10 +4,10 @@
 _Motto:_ Keep it alive
 
 ZenTuree (pronounced a bit like _century_) is a game that combines quite literally _"zen"_, _"tree"_ and _"century"_.
-Everything you need to play this game a lot of patience and a green thumb.
+Everything you need to play this game is a lot of patience and a green thumb.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/wischi-chr/ZenTuree/master/doc/sample-tree.png">
+  <img src="https://raw.githubusercontent.com/wischi-chr/ZenTuree/master/doc/ld46-banner.png" width="300">
 </div>
 
 ### Gameplay
@@ -24,15 +24,15 @@ Here: https://wischi-chr.github.io/ZenTuree/
 Keep in mind, that your tree needs about two years to fully grow. Can you keep it alive?
 
 ### Technical stuff
-You don't need an account. Details about your tree are stored locally (javascript local storage). If you reload the pag, even if a long time has passed, the tree will show the correct state (as if it was "running" the entire time). Actually we just apply the missing time very quickly.
+You don't need an account. Details about your tree are stored locally (javascript local storage). If you reload the page, even if a long time has passed, the tree will show the correct state (as if it was "running" the entire time). Actually we just apply the missing time very quickly.
 
 ### For Ludum Dare Testers
-The normal game mode takes about two years for a full grown tree. To make things simpler there are two test game mode.
+The normal game mode takes about two years for a full grown tree. To make things simpler there are two test game modes.
 
-#### LD46 Mode
-This is the recommended game mode for LD46 testers. A full grown tree takes about 2h and should be watered about every 15 to 30 minutes.
- - https://wischi-chr.github.io/ZenTuree/LD46/
+- **LD46 Mode**  
+This is the recommended game mode for LD46 testers. A full grown tree takes about 2h and should be watered about every 15 to 30 minutes. Of course you don’t have to stare at the tree for two hours. Make sure it has enough water, close the tab and try other games. Make sure to check in later to water the tree.  
+   https://wischi-chr.github.io/ZenTuree/LD46/
 
-#### No-Zen Mode
-For very unpatient players there is an even faster mode. A tree takes about a minute to fully grow.
- - https://wischi-chr.github.io/ZenTuree/FAST/
+- **Non-Zen-s Mode**  
+For very unpatient players there is an even faster mode. A tree takes about a minute to fully grow.  
+https://wischi-chr.github.io/ZenTuree/FAST/
