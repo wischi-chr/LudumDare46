@@ -449,19 +449,6 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         }
     }
 
-    public class PixelScreenSegmentWriter : IPixelScreenWriter
-    {
-        public PixelScreenSegmentWriter(IPixelScreenWriter pixelScreenWriter)
-        {
-
-        }
-
-        public void SetPixel(int x, int y, bool set)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public class PixelScreen
     {
         public PixelScreen()

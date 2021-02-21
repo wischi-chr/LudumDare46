@@ -1,8 +1,9 @@
 ﻿namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
-    public class TreeConfiguration
+    public class TreeEnvironmentConfig
+
     {
-        public TreeConfiguration(
+        public TreeEnvironmentConfig(
             double maxGrowthRate,
             double minWaterRate,
             double maxWaterRate,

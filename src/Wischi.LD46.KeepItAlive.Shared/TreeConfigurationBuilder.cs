@@ -2,7 +2,7 @@
 
 namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
-    public class TreeConfigurationBuilder
+    public class TreeEnvironmentConfigBuilder
     {
         public TimeSpan FullGrownTree { get; set; }
         public TimeSpan TickRate { get; set; }
@@ -14,9 +14,9 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         public double InitialWaterLevel { get; set; }
         public string SettingPrefix { get; set; }
 
-        public TreeConfiguration Build()
+        public TreeEnvironmentConfig Build()
         {
-            return new TreeConfiguration(
+            return new TreeEnvironmentConfig(
                 GetPerTickValue(FullGrownTree),
                 GetPerTickValue(WaterMin),
                 GetPerTickValue(WaterMax),

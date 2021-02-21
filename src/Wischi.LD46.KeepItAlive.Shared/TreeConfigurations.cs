@@ -2,10 +2,10 @@
 
 namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
-    public static class TreeConfigurations
+    public static class TreeEnvironmentConfigs
     {
-        public static TreeConfiguration ReleaseConfig { get; }
-            = new TreeConfigurationBuilder()
+        public static TreeEnvironmentConfig ReleaseConfig { get; }
+            = new TreeEnvironmentConfigBuilder()
             {
                 FullGrownTree = TimeSpan.FromDays(365 * 2), // two years
                 TickRate = TimeSpan.FromMinutes(15),
@@ -18,8 +18,8 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 SettingPrefix = "bonsai"
             }.Build();
 
-        public static TreeConfiguration DebugConfig { get; }
-            = new TreeConfigurationBuilder()
+        public static TreeEnvironmentConfig DebugConfig { get; }
+            = new TreeEnvironmentConfigBuilder()
             {
                 FullGrownTree = TimeSpan.FromMinutes(1),
                 TickRate = TimeSpan.FromMilliseconds(10),
@@ -33,8 +33,8 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             }.Build();
 
 
-        public static TreeConfiguration LudumDare46Test { get; }
-            = new TreeConfigurationBuilder()
+        public static TreeEnvironmentConfig LudumDare46Test { get; }
+            = new TreeEnvironmentConfigBuilder()
             {
                 FullGrownTree = TimeSpan.FromHours(2),
                 TickRate = TimeSpan.FromMilliseconds(100),

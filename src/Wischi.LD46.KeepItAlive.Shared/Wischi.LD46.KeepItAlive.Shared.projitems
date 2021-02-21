@@ -9,7 +9,19 @@
     <Import_RootNamespace>Wischi.LD46.KeepItAlive</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Class1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IClock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IRandomSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ITreeStateStore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RandomExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RandomWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeBehaviourEngine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeEnvironmentConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeConfigurationBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeConfigurations.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeSegment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeStateFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vector2D.cs" />
   </ItemGroup>
 </Project>
