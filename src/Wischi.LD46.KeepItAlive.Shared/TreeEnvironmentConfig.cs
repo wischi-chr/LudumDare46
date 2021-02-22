@@ -12,6 +12,7 @@
             double initialWaterLevel,
             int msRefreshRate,
             int msTickRate,
+            int msAutoSave,
             string settingPrefix
         )
         {
@@ -23,6 +24,7 @@
             InitialWaterLevel = initialWaterLevel;
             MsRefreshRate = msRefreshRate;
             MsTickRate = msTickRate;
+            MsAutoSave = msAutoSave;
             SettingPrefix = settingPrefix;
         }
 
@@ -34,6 +36,7 @@
         public double InitialWaterLevel { get; }
         public int MsRefreshRate { get; }
         public int MsTickRate { get; }
+        public int MsAutoSave { get; }
         public string SettingPrefix { get; }
     }
 }

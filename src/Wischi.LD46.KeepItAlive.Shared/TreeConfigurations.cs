@@ -4,7 +4,21 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
     public static class TreeEnvironmentConfigs
     {
-        public static TreeEnvironmentConfig ReleaseConfig { get; }
+        public static TreeEnvironmentConfig Debug { get; }
+            = new TreeEnvironmentConfigBuilder()
+            {
+                FullGrownTree = TimeSpan.FromMinutes(10),
+                TickRate = TimeSpan.FromMilliseconds(10),
+                WaterMax = TimeSpan.FromSeconds(160),
+                WaterMin = TimeSpan.FromSeconds(50),
+                ScreenRefreshRate = TimeSpan.FromMilliseconds(100),
+                DurationUntilDeadWhenUnhealthy = TimeSpan.FromSeconds(1000),
+                DurationUntilFullHealthWhenHealthy = TimeSpan.FromSeconds(10),
+                InitialWaterLevel = 1,
+                SettingPrefix = "develop"
+            }.Build();
+
+        public static TreeEnvironmentConfig Release { get; }
             = new TreeEnvironmentConfigBuilder()
             {
                 FullGrownTree = TimeSpan.FromDays(365 * 2), // two years
@@ -18,7 +32,7 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 SettingPrefix = "bonsai"
             }.Build();
 
-        public static TreeEnvironmentConfig DebugConfig { get; }
+        public static TreeEnvironmentConfig NonZensMode { get; }
             = new TreeEnvironmentConfigBuilder()
             {
                 FullGrownTree = TimeSpan.FromMinutes(1),

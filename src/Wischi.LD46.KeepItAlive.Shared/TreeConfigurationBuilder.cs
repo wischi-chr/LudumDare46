@@ -25,6 +25,7 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 InitialWaterLevel,
                 (int)Math.Round(ScreenRefreshRate.TotalMilliseconds),
                 (int)Math.Round(TickRate.TotalMilliseconds),
+                15000,
                 SettingPrefix
             );
         }

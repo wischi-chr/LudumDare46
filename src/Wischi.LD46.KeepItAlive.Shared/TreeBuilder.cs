@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Wischi.LD46.KeepItAlive
 {
@@ -50,7 +48,6 @@ namespace Wischi.LD46.KeepItAlive
             const double maxDevAngle = 0.1 * TAU;
             const double gravityNormal = 0.75 * TAU;
 
-            var floatDepth = (double)segment.Depth / MaxDepth;
             var deltaAngle = Math.Atan2(Math.Sin(gravityNormal - absoluteAngle), Math.Cos(gravityNormal - absoluteAngle));
 
             if (Math.Abs(deltaAngle) < maxDevAngle)
@@ -99,8 +96,6 @@ namespace Wischi.LD46.KeepItAlive
 
         private void AddAngledBranch(TreeSegment parent, double deviation, double oldAbsoluteAngle, double extraThicknessFactor = 1)
         {
-            var floatDepth = (double)parent.Depth / MaxDepth;
-
             var lengthFactor = 0.8;
 
             if (parent.Depth < 3)

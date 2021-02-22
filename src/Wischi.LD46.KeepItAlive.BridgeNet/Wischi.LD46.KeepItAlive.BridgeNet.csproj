@@ -36,11 +36,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="App.cs" />
+    <Compile Include="SharedDrawingState.cs" />
+    <Compile Include="TreeAppContext.cs" />
+    <Compile Include="TreeDrawer.cs" />
     <Compile Include="BridgeClock.cs" />
-    <Compile Include="LocalStorageTreeStateStore.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="EasingHelper.cs" />
+    <Compile Include="TreeStateStore.cs" />
+    <Compile Include="LocalStorageLegacyTreeStateStore.cs" />
+    <Compile Include="Bootstrap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskX.cs" />
+    <Compile Include="TreeDrawingContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="bridge.json" />
