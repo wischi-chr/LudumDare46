@@ -60,6 +60,7 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             sharedDrawingState.ThicknessControl = TreeBehaviour.TreeState.Health;
             sharedDrawingState.WaterDelta = TreeBehaviour.WaterDelta;
             sharedDrawingState.IsDead = TreeBehaviour.TreeState.Health == 0;
+            sharedDrawingState.Seed = TreeBehaviour.TreeState.Seed;
         }
 
         public async Task WaterAsync()
