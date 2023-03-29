@@ -5,8 +5,6 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wischi.LD46.KeepItAlive", "Wischi.LD46.KeepItAlive\Wischi.LD46.KeepItAlive.csproj", "{BE327087-4836-4913-8466-7F7FC0F1EA28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wischi.LD46.KeepItAlive.BridgeNet", "Wischi.LD46.KeepItAlive.BridgeNet\Wischi.LD46.KeepItAlive.BridgeNet.csproj", "{A666F58C-1EEE-403D-A31D-76399DB4E75F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wischi.LD46.KeepItAlive.TestRunner", "Wischi.LD46.KeepItAlive.TestRunner\Wischi.LD46.KeepItAlive.TestRunner.csproj", "{C8AEAC51-2A80-47CE-BF18-03BD99A7916E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Wischi.LD46.KeepItAlive.Shared", "Wischi.LD46.KeepItAlive.Shared\Wischi.LD46.KeepItAlive.Shared.shproj", "{5C0F4DD8-85F8-4346-954A-55F9E7643293}"
@@ -23,10 +21,6 @@ Global
 		{BE327087-4836-4913-8466-7F7FC0F1EA28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE327087-4836-4913-8466-7F7FC0F1EA28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE327087-4836-4913-8466-7F7FC0F1EA28}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A666F58C-1EEE-403D-A31D-76399DB4E75F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A666F58C-1EEE-403D-A31D-76399DB4E75F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A666F58C-1EEE-403D-A31D-76399DB4E75F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A666F58C-1EEE-403D-A31D-76399DB4E75F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C8AEAC51-2A80-47CE-BF18-03BD99A7916E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C8AEAC51-2A80-47CE-BF18-03BD99A7916E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8AEAC51-2A80-47CE-BF18-03BD99A7916E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,7 +39,6 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Wischi.LD46.KeepItAlive.Shared\Wischi.LD46.KeepItAlive.Shared.projitems*{3056d373-feb3-46ce-8ac3-849fd9df9d7d}*SharedItemsImports = 5
 		Wischi.LD46.KeepItAlive.Shared\Wischi.LD46.KeepItAlive.Shared.projitems*{5c0f4dd8-85f8-4346-954a-55f9e7643293}*SharedItemsImports = 13
-		Wischi.LD46.KeepItAlive.Shared\Wischi.LD46.KeepItAlive.Shared.projitems*{a666f58c-1eee-403d-a31d-76399db4e75f}*SharedItemsImports = 4
 		Wischi.LD46.KeepItAlive.Shared\Wischi.LD46.KeepItAlive.Shared.projitems*{c8aeac51-2a80-47ce-bf18-03bd99a7916e}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal
