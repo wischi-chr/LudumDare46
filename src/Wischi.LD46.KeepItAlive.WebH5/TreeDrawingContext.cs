@@ -1,5 +1,5 @@
-﻿using Bridge.Html5;
-using System;
+﻿using System;
+using static H5.Core.dom;
 
 namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
@@ -70,14 +70,14 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             if (internalThickness > LeafLimit)
             {
                 // branch
-                ctx.StrokeStyle = BranchColor;
-                ctx.FillStyle = BranchColor;
+                ctx.strokeStyle = BranchColor;
+                ctx.fillStyle = BranchColor;
             }
             else
             {
                 // leaf
-                ctx.StrokeStyle = "#206411";
-                ctx.FillStyle = "#206411";
+                ctx.strokeStyle = "#206411";
+                ctx.fillStyle = "#206411";
             }
 
             if (double.IsNaN(lastThickness))
@@ -111,8 +111,8 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             double length
         )
         {
-            ctx.BeginPath();
-            ctx.MoveTo(x, y);
+            ctx.beginPath();
+            ctx.moveTo(x, y);
 
             var dx = Math.Cos(absoluteAngle) * length * ScaleFactor;
             var dy = Math.Sin(absoluteAngle) * length * ScaleFactor;
@@ -120,11 +120,11 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             x += dx;
             y += -dy;
 
-            ctx.LineTo(x, y);
-            ctx.LineWidth = thickness * ScaleFactor;
-            ctx.ClosePath();
+            ctx.lineTo(x, y);
+            ctx.lineWidth = thickness * ScaleFactor;
+            ctx.closePath();
 
-            ctx.Stroke();
+            ctx.stroke();
 
             return (x, y);
         }
@@ -157,33 +157,33 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 var newNormalX = Math.Cos(newNormal) * thickness / 2;
                 var newNormalY = -Math.Sin(newNormal) * thickness / 2;
 
-                ctx.BeginPath();
-                ctx.MoveTo(x + oldNormalX * ScaleFactor, y + oldNormalY * ScaleFactor);
-                ctx.LineTo(newX - newNormalX * ScaleFactor, newY - newNormalY * ScaleFactor);
-                ctx.LineTo(newX + newNormalX * ScaleFactor, newY + newNormalY * ScaleFactor);
-                ctx.LineTo(x - oldNormalX * ScaleFactor, y - oldNormalY * ScaleFactor);
+                ctx.beginPath();
+                ctx.moveTo(x + oldNormalX * ScaleFactor, y + oldNormalY * ScaleFactor);
+                ctx.lineTo(newX - newNormalX * ScaleFactor, newY - newNormalY * ScaleFactor);
+                ctx.lineTo(newX + newNormalX * ScaleFactor, newY + newNormalY * ScaleFactor);
+                ctx.lineTo(x - oldNormalX * ScaleFactor, y - oldNormalY * ScaleFactor);
 
-                ctx.ClosePath();
+                ctx.closePath();
 
-                //ctx.Stroke();
-                ctx.Fill();
+                //ctx.stroke();
+                ctx.fill();
 
-                ctx.BeginPath();
-                ctx.Arc(newX, newY, thickness / 2 * ScaleFactor, 0, TAU);
-                ctx.ClosePath();
-                ctx.Fill();
+                ctx.beginPath();
+                ctx.arc(newX, newY, thickness / 2 * ScaleFactor, 0, TAU);
+                ctx.closePath();
+                ctx.fill();
 
             }
             else
             {
-                ctx.BeginPath();
+                ctx.beginPath();
 
-                ctx.MoveTo(x, y);
-                ctx.LineTo(newX, newY);
-                ctx.LineWidth = thickness * ScaleFactor;
+                ctx.moveTo(x, y);
+                ctx.lineTo(newX, newY);
+                ctx.lineWidth = thickness * ScaleFactor;
 
-                ctx.ClosePath();
-                ctx.Stroke();
+                ctx.closePath();
+                ctx.stroke();
             }
 
             return (newX, newY);

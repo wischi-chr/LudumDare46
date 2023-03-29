@@ -1,5 +1,5 @@
-﻿using Bridge.Html5;
-using System;
+﻿using System;
+using static H5.Core.dom;
 
 namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
@@ -9,19 +9,19 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
 
         public LoadingDrawer(HTMLCanvasElement canvas)
         {
-            ctx = canvas.GetContext(CanvasTypes.CanvasContext2DType.CanvasRenderingContext2D);
+            ctx = canvas.getContext(Literals._2d);
         }
 
         public void Draw()
         {
-            ctx.FillStyle = "#B2FFFF";
-            ctx.ClearRect(0, 0, 512, 512);
-            ctx.FillRect(0, 0, 512, 512);
+            ctx.fillStyle = "#B2FFFF";
+            ctx.clearRect(0, 0, 512, 512);
+            ctx.fillRect(0, 0, 512, 512);
 
-            ctx.FillStyle = "#000";
-            ctx.Font = "bold 16px Arial, sans-serif";
+            ctx.fillStyle = "#000";
+            ctx.font = "bold 16px Arial, sans-serif";
 
-            ctx.FillText("Loading...", 7, 20);
+            ctx.fillText("Loading...", 7, 20);
         }
     }
 
@@ -60,10 +60,10 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             this.reset = reset ?? throw new ArgumentNullException(nameof(reset));
             this.sharedDrawingState = sharedDrawingState ?? throw new ArgumentNullException(nameof(sharedDrawingState));
 
-            canvas.Width = CanvasWidth;
-            canvas.Height = CanvasHeight;
+            canvas.setAttribute("width", CanvasWidth.ToString());
+            canvas.setAttribute("height", CanvasHeight.ToString());
 
-            ctx = canvas.GetContext(CanvasTypes.CanvasContext2DType.CanvasRenderingContext2D);
+            ctx = canvas.getContext(Literals._2d);
 
             treeDrawingContext = new TreeDrawingContext(ctx)
             {
@@ -101,17 +101,17 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
 
             grassRandom.Reset();
 
-            ctx.FillStyle = SkyColor;
-            ctx.ClearRect(0, 0, 512, 512);
-            ctx.FillRect(0, 0, 512, 512);
+            ctx.fillStyle = SkyColor;
+            ctx.clearRect(0, 0, 512, 512);
+            ctx.fillRect(0, 0, 512, 512);
 
             treeDrawingContext.GrowthFactor = EasingHelper.EaseOutQuad(sharedDrawingState.GrowthControl * 0.75 + 0.25);
             treeDrawingContext.LeafFactor = sharedDrawingState.ThicknessControl * 0.9;
             treeDrawingContext.IsDead = sharedDrawingState.IsDead;
 
             var grassHeight = TreeYOffset - 50;
-            ctx.FillStyle = GrassBackgroundColor;
-            ctx.FillRect(0, grassHeight, CanvasWidth, CanvasHeight - grassHeight);
+            ctx.fillStyle = GrassBackgroundColor;
+            ctx.fillRect(0, grassHeight, CanvasWidth, CanvasHeight - grassHeight);
 
             var grassForegroundLimit = TreeYOffset - 20;
 
@@ -149,14 +149,14 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             if (!sharedDrawingState.IsDead)
             {
                 // white hud bg
-                ctx.FillStyle = "#B2FFFF60";
-                ctx.FillRect(0 + marginLeft, CanvasHeight - marginBottom - 2 * padding - height, CanvasWidth - margin - marginLeft, height + 2 * padding);
+                ctx.fillStyle = "#B2FFFF60";
+                ctx.fillRect(0 + marginLeft, CanvasHeight - marginBottom - 2 * padding - height, CanvasWidth - margin - marginLeft, height + 2 * padding);
 
-                ctx.FillStyle = "#0077BE80";
-                ctx.FillRect(0 + marginLeft + padding, CanvasHeight - marginBottom - padding - height, (CanvasWidth - 2 * padding - margin - marginLeft) * waterPredition, height);
+                ctx.fillStyle = "#0077BE80";
+                ctx.fillRect(0 + marginLeft + padding, CanvasHeight - marginBottom - padding - height, (CanvasWidth - 2 * padding - margin - marginLeft) * waterPredition, height);
 
-                ctx.FillStyle = "#0077BE";
-                ctx.FillRect(0 + marginLeft + padding, CanvasHeight - marginBottom - padding - height, (int)((CanvasWidth - 2 * padding - margin - marginLeft) * sharedDrawingState.WaterAmount), height);
+                ctx.fillStyle = "#0077BE";
+                ctx.fillRect(0 + marginLeft + padding, CanvasHeight - marginBottom - padding - height, (int)((CanvasWidth - 2 * padding - margin - marginLeft) * sharedDrawingState.WaterAmount), height);
             }
 
             var icon = water;
@@ -168,11 +168,11 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 icon = reset;
             }
 
-            ctx.ImageSmoothingEnabled = true;
-            ctx.DrawImage(icon, iconLeft, CanvasHeight - 64 - 15, 64d, 64d);
+            ctx.imageSmoothingEnabled = true;
+            ctx.drawImage(icon, iconLeft, CanvasHeight - 64 - 15, 64d, 64d);
 
-            ctx.FillStyle = "#000";
-            ctx.Font = "bold 16px Arial, sans-serif";
+            ctx.fillStyle = "#000";
+            ctx.font = "bold 16px Arial, sans-serif";
 
             var text = "";
 
@@ -198,22 +198,22 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             }
             else
             {
-                ctx.Font = "bold 24px Arial, sans-serif";
+                ctx.font = "bold 24px Arial, sans-serif";
                 marginLeft += 30;
                 //text = "⯇ click to restart";
             }
 
-            ctx.FillText(text, marginLeft + padding + 15, CanvasHeight - marginBottom - padding - 10);
+            ctx.fillText(text, marginLeft + padding + 15, CanvasHeight - marginBottom - padding - 10);
         }
 
         private void DrawGrass(int y, int amount)
         {
             var grassScale = 0.2 * ScaleFactor;
 
-            ctx.StrokeStyle = GrassColor;
-            ctx.LineWidth = grassScale * 0.025;
+            ctx.strokeStyle = GrassColor;
+            ctx.lineWidth = grassScale * 0.025;
 
-            ctx.BeginPath();
+            ctx.beginPath();
 
             for (var i = 0; i < amount; i++)
             {
@@ -224,12 +224,12 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 var offsetY = grassRandom.NextDouble() - 0.5;
                 var height = grassRandom.NextDouble() * 0.7 + 0.3;
 
-                ctx.MoveTo(x, y + offsetY * grassScale);
-                ctx.LineTo(x + offsetx * grassScale, y + offsetY * grassScale + height * grassScale);
+                ctx.moveTo(x, y + offsetY * grassScale);
+                ctx.lineTo(x + offsetx * grassScale, y + offsetY * grassScale + height * grassScale);
             }
 
-            ctx.ClosePath();
-            ctx.Stroke();
+            ctx.closePath();
+            ctx.stroke();
         }
     }
 }

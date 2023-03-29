@@ -1,12 +1,12 @@
-﻿using Bridge.Html5;
+﻿using static H5.Core.es5;
 
 namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
-    public class BridgeClock : IClock
+    public class BrowserJsClock : IClock
     {
         public double Now()
         {
-            return Date.Now();
+            return Date.now();
         }
     }
 }

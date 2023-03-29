@@ -1,23 +1,26 @@
-using Bridge;
-using Bridge.Html5;
-using System;
+﻿using System;
+using H5;
 using System.Threading.Tasks;
+using Wischi.LD46.KeepItAlive.BridgeNet;
 
-namespace Wischi.LD46.KeepItAlive.BridgeNet
+using static H5.Core.dom;
+using static Tesserae.UI;
+
+namespace Wischi.LD46.KeepItAlive.WebH5
 {
-    public static class Bootstrap
+    class Program
     {
         private static readonly Random rng;
-        private static readonly BridgeClock clock;
+        private static readonly BrowserJsClock clock;
         private static readonly TreeEnvironmentConfig config;
         private static readonly TreeStateFactory treeStateFactory;
         private static readonly TreeStateStore treeStateStore;
         private static readonly SharedDrawingState sharedDrawingState;
 
-        static Bootstrap()
+        static Program()
         {
             rng = new Random();
-            clock = new BridgeClock();
+            clock = new BrowserJsClock();
             config = TreeEnvironmentConfigs.Release;
             sharedDrawingState = new SharedDrawingState();
 
@@ -29,9 +32,9 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
         {
             var imageElement = new HTMLImageElement();
             var completionSource = new TaskCompletionSource<HTMLImageElement>();
-            imageElement.Src = src;
+            imageElement.src = src;
 
-            imageElement.AddEventListener(EventType.Load, () =>
+            imageElement.addEventListener("load", () =>
             {
                 completionSource.SetResult(imageElement);
             });
@@ -39,7 +42,7 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             return completionSource.Task;
         }
 
-        private static async Task MigrateSettingsAsync()
+        private static void MigrateSettings()
         {
             var legacyStateStore = new LocalStorageLegacyTreeStateStore(config.SettingPrefix);
 
@@ -48,14 +51,14 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             if (state != null)
             {
                 // migrate to new store
-                await treeStateStore.Set(state);
+                treeStateStore.Set(state);
                 legacyStateStore.RemoveLegacy();
             }
         }
 
         private static void SetHashAsSyncToken()
         {
-            var hs = Window.Location.Hash;
+            var hs = window.location.hash;
 
             if (hs.StartsWith("#"))
             {
@@ -68,29 +71,29 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             }
             else
             {
-                Window.Location.Hash = "#" + treeStateStore.SyncToken;
+                window.location.hash = "#" + treeStateStore.SyncToken;
             }
         }
 
-        [Ready]
-        public static async Task MainAsync()
+        static async Task Main(string[] args)
         {
-            if (!(Document.GetElementById("canvas") is HTMLCanvasElement canvas))
+            SetupHtml();
+
+            if (!(document.getElementById("canvas") is HTMLCanvasElement canvas))
             {
-                Console.Write("Canvas not found. Exiting.");
+                console.error("Canvas not found. Exiting.");
                 return;
             }
 
             var loader = new LoadingDrawer(canvas);
             loader.Draw();
 
-            await MigrateSettingsAsync();
-
+            MigrateSettings();
             SetHashAsSyncToken();
 
             treeStateStore.SyncTokenChanged += (s, e) =>
             {
-                Window.Location.Hash = "#" + treeStateStore.SyncToken;
+                window.location.hash = "#" + treeStateStore.SyncToken;
             };
 
             var context = new TreeAppContext(
@@ -101,33 +104,33 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 sharedDrawingState
             );
 
-            await context.InitializeAsync();
+            context.Initialize();
             context.UpdateGameState();
 
             var waterTask = LoadImageAsync("img/water.png");
             var resetTask = LoadImageAsync("img/reset.png");
-            var autoSaveTask = context.AutoSave();
+            context.AutoSave();
 
-            await Task.WhenAll(waterTask, resetTask, autoSaveTask);
+            await Task.WhenAll(waterTask, resetTask);
 
             var water = waterTask.Result;
             var reset = resetTask.Result;
 
-            if (Document.GetElementById("slider") is HTMLInputElement slider)
+            if (document.getElementById("slider") is HTMLInputElement slider)
             {
-                slider.AddEventListener(EventType.Input, () =>
+                slider.addEventListener("input", () =>
                 {
-                    var factor = int.Parse(slider.Value) / 100.0;
+                    var factor = int.Parse(slider.value) / 100.0;
                     context.TreeBehaviour.TreeState.Growth = factor;
                 });
             }
 
             var drawer = new TreeDrawer(canvas, water, reset, sharedDrawingState);
 
-            Window.OnHashChange = async (_) =>
+            window.onhashchange = (_) =>
             {
                 SetHashAsSyncToken();
-                await context.InitializeAsync();
+                context.Initialize();
                 UpdateStateAndDraw();
             };
 
@@ -143,9 +146,9 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                 Draw();
             }
 
-            water.AddEventListener(EventType.Load, UpdateStateAndDraw);
+            water.addEventListener("load", UpdateStateAndDraw);
 
-            canvas.AddEventListener(EventType.Click, async (e) =>
+            canvas.addEventListener("click", (e) =>
             {
                 if (!(e is MouseEvent me))
                 {
@@ -165,22 +168,55 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
                     if (context.TreeBehaviour.TreeState.Health == 0)
                     {
                         // Reset Tree
-                        await context.ResetTreeAsync();
+                        context.ResetTree();
                     }
                     else
                     {
-                        await context.WaterAsync();
+                        context.Water();
                     }
 
                     UpdateStateAndDraw();
                 }
             });
 
-            Window.SetInterval(Draw, config.MsRefreshRate);
-            Window.SetInterval(context.UpdateGameState, config.MsTickRate);
-            Window.SetInterval(() => _ = context.AutoSave(), config.MsAutoSave);
+            window.setInterval(_ => Draw(), config.MsRefreshRate);
+            window.setInterval(_ => context.UpdateGameState(), config.MsTickRate);
+            window.setInterval(_ => context.AutoSave(), config.MsAutoSave);
 
             UpdateStateAndDraw();
+        }
+
+        private static void SetupHtml()
+        {
+            document.title = "🌳 - ZenTuree";
+            var bs = document.body.style;
+
+            bs.margin = "0px";
+            bs.padding = "0px";
+            bs.backgroundColor = "#333";
+
+            var screen = Canvas(_(
+                id: "canvas",
+                styles: s =>
+                {
+                    s.border = "solid 5px black";
+                }));
+
+            screen.setAttribute("width", "512");
+            screen.setAttribute("height", "512");
+
+            var center_div = Div(_(
+                styles: s =>
+                {
+                    s.position = "fixed";
+                    s.top = "50%";
+                    s.left = "50%";
+                    s.transform = "translate(-50%, -50%)";
+                }),
+                screen
+            );
+
+            document.body.appendChild(center_div);
         }
     }
 }

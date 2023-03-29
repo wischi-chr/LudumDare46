@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using static H5.Core.dom;
 
 namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
@@ -28,23 +28,23 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
 
         public TreeBehaviourEngine TreeBehaviour { get; private set; }
 
-        public async Task InitializeAsync()
+        public void Initialize()
         {
-            var state = await treeStateStore.Get();
+            var state = treeStateStore.Get();
 
             if (state is null)
             {
                 state = treeStateFactory.CreateTree();
-                await treeStateStore.Set(state);
+                treeStateStore.Set(state);
             }
 
             TreeBehaviour = new TreeBehaviourEngine(config, state);
         }
 
-        public async Task ResetTreeAsync()
+        public void ResetTree()
         {
             var state = treeStateFactory.CreateTree();
-            await treeStateStore.Set(state);
+            treeStateStore.Set(state);
             TreeBehaviour = new TreeBehaviourEngine(config, state);
         }
 
@@ -63,15 +63,15 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
             sharedDrawingState.Seed = TreeBehaviour.TreeState.Seed;
         }
 
-        public async Task WaterAsync()
+        public void Water()
         {
             TreeBehaviour.Water();
-            await treeStateStore.Set(TreeBehaviour.TreeState);
+            treeStateStore.Set(TreeBehaviour.TreeState);
         }
 
-        public async Task AutoSave()
+        public void AutoSave()
         {
-            await treeStateStore.Set(TreeBehaviour.TreeState);
+            treeStateStore.Set(TreeBehaviour.TreeState);
         }
     }
 }

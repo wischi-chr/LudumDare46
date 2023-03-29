@@ -1,4 +1,4 @@
-﻿using Bridge.Html5;
+﻿using static H5.Core.dom;
 
 namespace Wischi.LD46.KeepItAlive.BridgeNet
 {
@@ -31,13 +31,13 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
 
         public TreeState Get()
         {
-            var seedValue = Window.LocalStorage.GetItem(seedKey) as string;
-            var tickValue = Window.LocalStorage.GetItem(tickKey) as string;
-            var startValue = Window.LocalStorage.GetItem(startKey) as string;
-            var growthValue = Window.LocalStorage.GetItem(growthKey) as string;
-            var healthValue = Window.LocalStorage.GetItem(healthKey) as string;
-            var waterLevelValue = Window.LocalStorage.GetItem(waterLevelKey) as string;
-            var lastUpdateValue = Window.LocalStorage.GetItem(lastUpdateKey) as string;
+            var seedValue = window.localStorage.getItem(seedKey);
+            var tickValue = window.localStorage.getItem(tickKey);
+            var startValue = window.localStorage.getItem(startKey);
+            var growthValue = window.localStorage.getItem(growthKey);
+            var healthValue = window.localStorage.getItem(healthKey);
+            var waterLevelValue = window.localStorage.getItem(waterLevelKey);
+            var lastUpdateValue = window.localStorage.getItem(lastUpdateKey);
 
             // Use single & to force parse all values even if the first one failed.
             // We do this to prevent a CS0165 uninitialized error.
@@ -70,24 +70,24 @@ namespace Wischi.LD46.KeepItAlive.BridgeNet
 
         public void Set(TreeState treeState)
         {
-            Window.LocalStorage.SetItem(seedKey, treeState.Seed);
-            Window.LocalStorage.SetItem(tickKey, treeState.Ticks);
-            Window.LocalStorage.SetItem(healthKey, treeState.Health);
-            Window.LocalStorage.SetItem(growthKey, treeState.Growth);
-            Window.LocalStorage.SetItem(startKey, treeState.StartTimestamp);
-            Window.LocalStorage.SetItem(waterLevelKey, treeState.WaterLevel);
-            Window.LocalStorage.SetItem(lastUpdateKey, treeState.LastEventTimestamp);
+            window.localStorage.setItem(seedKey, treeState.Seed.ToString());
+            window.localStorage.setItem(tickKey, treeState.Ticks.ToString());
+            window.localStorage.setItem(healthKey, treeState.Health.ToString());
+            window.localStorage.setItem(growthKey, treeState.Growth.ToString());
+            window.localStorage.setItem(startKey, treeState.StartTimestamp.ToString());
+            window.localStorage.setItem(waterLevelKey, treeState.WaterLevel.ToString());
+            window.localStorage.setItem(lastUpdateKey, treeState.LastEventTimestamp.ToString());
         }
 
         public void RemoveLegacy()
         {
-            Window.LocalStorage.RemoveItem(seedKey);
-            Window.LocalStorage.RemoveItem(tickKey);
-            Window.LocalStorage.RemoveItem(healthKey);
-            Window.LocalStorage.RemoveItem(growthKey);
-            Window.LocalStorage.RemoveItem(startKey);
-            Window.LocalStorage.RemoveItem(waterLevelKey);
-            Window.LocalStorage.RemoveItem(lastUpdateKey);
+            window.localStorage.removeItem(seedKey);
+            window.localStorage.removeItem(tickKey);
+            window.localStorage.removeItem(healthKey);
+            window.localStorage.removeItem(growthKey);
+            window.localStorage.removeItem(startKey);
+            window.localStorage.removeItem(waterLevelKey);
+            window.localStorage.removeItem(lastUpdateKey);
         }
     }
 }

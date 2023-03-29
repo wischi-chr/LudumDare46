@@ -1,0 +1,28 @@
+<Project Sdk="h5.Target/23.2.35852">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>7.2</LangVersion>
+        <RunPostBuildEvent>Always</RunPostBuildEvent>
+    </PropertyGroup>
+    <ItemGroup>
+      <None Remove="img\reset.png" />
+      <None Remove="img\water.png" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="img\reset.png" />
+      <Content Include="img\water.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="h5" Version="22.11.34330" />
+        <PackageReference Include="h5.core" Version="22.11.34329" />
+        <PackageReference Include="h5.Newtonsoft.Json" Version="22.11.34331" />
+        <PackageReference Include="Tesserae" Version="2022.11.34246" />
+    </ItemGroup>
+
+    <Import Project="..\Wischi.LD46.KeepItAlive.Shared\Wischi.LD46.KeepItAlive.Shared.projitems" Label="Shared" />
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="copy &quot;$(ProjectDir)img\reset.png&quot; &quot;$(TargetDir)\h5\img\reset.png&quot;&#xD;&#xA;copy &quot;$(ProjectDir)img\water.png&quot; &quot;$(TargetDir)\h5\img\water.png&quot;" />
+    </Target>
+</Project>
